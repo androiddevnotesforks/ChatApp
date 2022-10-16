@@ -17,7 +17,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
@@ -33,25 +36,52 @@ fun ProfileImage(
     onClick: () -> Unit = {},
     size: Dp = 65.dp,
     shape: Shape = CircleShape,
-    padding: PaddingValues = PaddingValues()
+    padding: PaddingValues = PaddingValues(),
+    iconCorner: ImageVector? = null,
+    iconCornerSize: Dp = 22.dp,
+    iconCornerBackground: Color = Color.Black,
+    iconCornerBackgroundSize: Dp = iconCornerSize + 2.dp,
+    iconCornerSpace: Dp = 2.dp
 ) {
-    if (avatarUrl != null && avatarUrl.isNotBlank()) {
-        AsyncImage(
-            model = avatarUrl,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .padding(padding)
-                .size(size)
-                .clip(shape)
-                .clickable(
-                    onClick = onClick,
-                    role = Role.Image,
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = rememberRipple(bounded = false)
-                )
-                .then(modifier)
-        )
+    if (!avatarUrl.isNullOrBlank()) {
+        Box(modifier = modifier) {
+            AsyncImage(
+                model = avatarUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .padding(padding)
+                    .size(size)
+                    .clip(shape)
+                    .clickable(
+                        onClick = onClick,
+                        role = Role.Image,
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberRipple(bounded = false)
+                    )
+            )
+            if (iconCorner != null) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(iconCornerBackgroundSize)
+                        .graphicsLayer {
+                            translationX = iconCornerSpace.toPx()
+                            translationY = iconCornerSpace.toPx()
+                        }
+                        .clip(shape)
+                        .background(iconCornerBackground)
+                        .align(Alignment.BottomEnd)
+                ) {
+                    Icon(
+                        imageVector = iconCorner,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(iconCornerSize)
+                    )
+                }
+            }
+        }
     } else {
         Box(
             contentAlignment = Alignment.BottomCenter,
